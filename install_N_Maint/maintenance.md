@@ -1,7 +1,7 @@
 
 # Upgrading Kubernetes
 -------------------------
-### kubeadm allows us to upgrade the cluster components in sequence order of the version, making sure to include important feature upgrades we might want to take advantage of in the latest stable version of Kubernertes. We will go through upgrading our cluster from version 1.13.5 to 1.14.1.
+ kubeadm allows us to upgrade the cluster components in sequence order of the version, making sure to include important feature upgrades we might want to take advantage of in the latest stable version of Kubernertes. We will go through upgrading our cluster from version 1.13.5 to 1.14.1.
 
 ### On Master 
 

@@ -1,5 +1,5 @@
-# Installing Kuberbetes
-  ---------------------
+# Installation 
+  ------------
 
 ## Setting up Kubernetes on Ubuntu
    -------------------------------------

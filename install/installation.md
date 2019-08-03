@@ -1,8 +1,8 @@
 # Installing Kuberbetes
   ---------------------
 
-## Setting up Kubernetes on Ubuntu 
-   -------------------------------
+## Setting up Kubernetes on Ubuntu
+   -------------------------------------
    
 ####   On Master and Node
 
@@ -72,4 +72,18 @@
 #####  Verify the worker nodes have joined the cluster successfully:
 ```
     #  kubectl get nodes
+```
+####  Add new node to the exiting cluster:
+
+##### Generate a new token:
+```
+     # sudo kubeadm token generate
+```
+##### List the tokens:
+```
+     # sudo kubeadm token list
+```
+##### Print the kubeadm join command to join a node to the cluster:
+```
+     # sudo kubeadm token create [token_name] --ttl 2h --print-join-command
 ```

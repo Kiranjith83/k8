@@ -1,8 +1,8 @@
 # Installing Kuberbetes
   ---------------------
 
-## Kubernetes on Ubuntu By Linux academy:
-   -------------------------------------
+## Setting up Kubernetes on Ubuntu 
+   -------------------------------
    
 ####   On Master and Node
 

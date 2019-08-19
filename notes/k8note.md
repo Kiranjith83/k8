@@ -1,3 +1,9 @@
+
+# THIS IS DRAFT AND NOT TO BE REFERRED: 
+## TYPOS, AND UNTESTED CONCEPTS AHEAD ! 
+=======================
+
+
 Links:
 =======================
 > Getting Started.

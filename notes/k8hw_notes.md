@@ -53,20 +53,20 @@ In order to fully understand the purpose behind many of the steps involved in Ku
 In order to generate the certificates needed by Kubernetes, you must first provision a certificate authority. This lesson will guide you through the process of provisioning a new certificate authority for your Kubernetes cluster. After completing this lesson, you should have a certificate authority, which consists of two files: ca-key.pem and ca.pem.
 
 Here are the commands used in the demo:
-
+```
 cd ~/
 mkdir kthw
 cd kthw/
-
+```
 UPDATE: cfssljson and cfssl will need to be installed. To install, complete the following commands:
-
+```
 sudo curl -s -L -o /bin/cfssl https://pkg.cfssl.org/R1.2/cfssl_linux-amd64
 sudo curl -s -L -o /bin/cfssljson https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64
 sudo curl -s -L -o /bin/cfssl-certinfo https://pkg.cfssl.org/R1.2/cfssl-certinfo_linux-amd64
 sudo chmod +x /bin/cfssl*
-
+```
 Use this command to generate the certificate authority. Include the opening and closing curly braces to run this entire block as a single command.
-
+```
 {
 
 cat > ca-config.json << EOF
@@ -107,7 +107,7 @@ EOF
 cfssl gencert -initca ca-csr.json | cfssljson -bare ca
 
 }
-
+```
 ca-key.pem is the private key 
 ca.pem is the public CA that will be moved to each and every components to validate the TLS certificates. 
 
@@ -119,6 +119,7 @@ Here are the commands used in the demo. The command blocks surrounded by curly b
 cd ~/kthw
 Admin Client certificate:
 -------------------------
+```
 {
 
 cat > admin-csr.json << EOF
@@ -148,11 +149,11 @@ cfssl gencert \
   admin-csr.json | cfssljson -bare admin
 
 }
-
+```
 #### Kubelet Client certificates:
 --------------------------------
  These are just a little more conmplicated. Because these certifate is signed for specific host (Node). Kubelet Client certificates. Be sure to enter your actual cloud server values for all four of the variables at the top:
-
+```
 WORKER0_HOST=<Public hostname of your first worker node cloud server>
 WORKER0_IP=<Private IP of your first worker node cloud server>
 WORKER1_HOST=<Public hostname of your second worker node cloud server>
@@ -214,10 +215,11 @@ cfssl gencert \
   ${WORKER1_HOST}-csr.json | cfssljson -bare ${WORKER1_HOST}
 
 }
+```
 #### Controller Manager Client certificate:
 ------------------------------------------
+```
 {
-
 cat > kube-controller-manager-csr.json << EOF
 {
   "CN": "system:kube-controller-manager",
@@ -245,12 +247,11 @@ cfssl gencert \
   kube-controller-manager-csr.json | cfssljson -bare kube-controller-manager
 
 }
-
+```
 #### Kube Proxy Client certificate:
 ----------------------------------
-
+```
 {
-
 cat > kube-proxy-csr.json << EOF
 {
   "CN": "system:kube-proxy",
@@ -278,10 +279,10 @@ cfssl gencert \
   kube-proxy-csr.json | cfssljson -bare kube-proxy
 
 }
-
+```
 #### Kube Scheduler Client Certificate:
 --------------------------------------
-
+```
 {
 
 cat > kube-scheduler-csr.json << EOF
@@ -311,14 +312,14 @@ cfssl gencert \
   kube-scheduler-csr.json | cfssljson -bare kube-scheduler
 
 }
-
+```
 
  ### Step 3. Generating the Kubernetes API Server Certificate. 
  ---------------------------------------------------------
  We have generated all of the the client certificates our Kubernetes clister will need, but we also need a server certificate for the Kubernetes API. In this lesson, we will generate one, signed with all of the hostnames and IPs that may be used later in order to access the Kubernetes API. After completing this lesson, you will have a Kubernetes API server certificate in the form of two files called kubernetes-key.pem and kubernetes.pem.
 
 Here are the commands used in the demo. Be sure to replace all the placeholder values in CERT_HOSTNAME with their real values from your cloud servers:
-
+```
 cd ~/kthw
 CERT_HOSTNAME=10.32.0.1,<controller node 1 Private IP>,<controller node 1 hostname>,<controller node 2 Private IP>,<controller node 2 hostname>,<API load balancer Private IP>,<API load balancer hostname>,127.0.0.1,localhost,kubernetes.default
 >  example:
@@ -354,13 +355,13 @@ cfssl gencert \
   kubernetes-csr.json | cfssljson -bare kubernetes
 
 }
-
+```
  ### Step 4. Generating the Service Account Key Pair
  -----------------------------------------------
  Kubernetes provides the ability for service accounts to authenticate using tokens. It uses a key-pair to provide signatures for those tokens. In this lesson, we will generate a certificate that will be used as that key-pair. After completing this lesson, you will have a certificate ready to be used as a service account key-pair in the form of two files: service-account-key.pem and service-account.pem. Used to authenticate with the service account created in the Kubernertes. 
 
 Here are the commands used in the demo:
-
+```
 cd ~/kthw
 
 {
@@ -392,7 +393,7 @@ cfssl gencert \
   service-account-csr.json | cfssljson -bare service-account
 
 }
-
+```
 ### Step 5. Distributing the Certificate Files
 ------------------------------------------
 Now that all of the necessary certificates have been generated, we need to move the files onto the appropriate servers. In this lesson, we will copy the necessary certificate files to each of our cloud servers. After completing this lesson, your controller and worker nodes should each have the certificate files which they need.
@@ -400,17 +401,17 @@ Now that all of the necessary certificates have been generated, we need to move 
 Here are the commands used in the demo. Be sure to replace the placeholders with the actual values from from your cloud servers.
 
 Move certificate files to the worker nodes:
-
+```
 scp ca.pem <worker 1 hostname>-key.pem <worker 1 hostname>.pem user@<worker 1 public IP>:~/
 scp ca.pem <worker 2 hostname>-key.pem <worker 2 hostname>.pem user@<worker 2 public IP>:~/
-
+```
 Move certificate files to the controller nodes:
-
+```
 scp ca.pem ca-key.pem kubernetes-key.pem kubernetes.pem \
     service-account-key.pem service-account.pem user@<controller 1 public IP>:~/
 scp ca.pem ca-key.pem kubernetes-key.pem kubernetes.pem \
     service-account-key.pem service-account.pem user@<controller 2 public IP>:~/
-
+```
 ### Generating Kubeconfig 
  ---------------------
  The next step in building a Kubernetes cluster the hard way is to generate kubeconfigs which will be used by the various services that will make up the cluster. In this lesson, we will generate these kubeconfigs. After completing this lesson, you should have a set of kubeconfigs which you will need later in order to configure the Kubernetes cluster.
@@ -423,7 +424,7 @@ KUBERNETES_ADDRESS=<load balancer private ip>
 
 #### Generate a kubelet kubeconfig for each worker node:
 ----------------------------------------------------
-
+```
 for instance in <worker 1 hostname> <worker 2 hostname>; do
   kubectl config set-cluster kubernetes-the-hard-way \
     --certificate-authority=ca.pem \
@@ -444,9 +445,10 @@ for instance in <worker 1 hostname> <worker 2 hostname>; do
 
   kubectl config use-context default --kubeconfig=${instance}.kubeconfig
 done
-
+```
 #### Generate a kube-proxy kubeconfig:
 ---------------------------------
+```
 {
   kubectl config set-cluster kubernetes-the-hard-way \
     --certificate-authority=ca.pem \
@@ -467,9 +469,10 @@ done
 
   kubectl config use-context default --kubeconfig=kube-proxy.kubeconfig
 }
-
+```
 #### Generate a kube-controller-manager kubeconfig:
 ----------------------------------------------
+```
 {
   kubectl config set-cluster kubernetes-the-hard-way \
     --certificate-authority=ca.pem \
@@ -490,9 +493,10 @@ done
 
   kubectl config use-context default --kubeconfig=kube-controller-manager.kubeconfig
 }
-
+```
 #### Generate a kube-scheduler kubeconfig:
 -------------------------------------
+```
 {
   kubectl config set-cluster kubernetes-the-hard-way \
     --certificate-authority=ca.pem \
@@ -513,9 +517,10 @@ done
 
   kubectl config use-context default --kubeconfig=kube-scheduler.kubeconfig
 }
-
+```
 #### SGenerate an admin kubeconfig:
 -----------------------------
+```
 {
   kubectl config set-cluster kubernetes-the-hard-way \
     --certificate-authority=ca.pem \
@@ -536,24 +541,26 @@ done
 
   kubectl config use-context default --kubeconfig=admin.kubeconfig
 }
-
+```
   - This creates the necessary configurations for the system pods and nodes. This will help to setup the kubernetes cluster. 
 
 
-  Now that we have generated the kubeconfig files that we will need in order to configure our Kubernetes cluster, we need to make sure that each cloud server has a copy of the kubeconfig files that it will need. In this lesson, we will distribute the kubeconfig files to each of the worker and controller nodes so that they will be in place for future lessons. After completing this lesson, each of your worker and controller nodes should have a copy of the kubeconfig files it needs.
+> Now that we have generated the kubeconfig files that we will need in order to configure our Kubernetes cluster, we need to make sure that each cloud server has a copy of the kubeconfig files that it will need. In this lesson, we will distribute the kubeconfig files to each of the worker and controller nodes so that they will be in place for future lessons. After completing this lesson, each of your worker and controller nodes should have a copy of the kubeconfig files it needs.
 
 Here are the commands used in the demo. Be sure to replace the placeholders with the actual values from from your cloud servers.
 
 #### Move kubeconfig files to the worker nodes:
 -----------------------------------------------
+```
 scp <worker 1 hostname>.kubeconfig kube-proxy.kubeconfig user@<worker 1 public IP>:~/
 scp <worker 2 hostname>.kubeconfig kube-proxy.kubeconfig user@<worker 2 public IP>:~/
-
+```
 #### Move kubeconfig files to the controller nodes:
 ---------------------------------------------------
+```
 scp admin.kubeconfig kube-controller-manager.kubeconfig kube-scheduler.kubeconfig user@<controller 1 public IP>:~/
 scp admin.kubeconfig kube-controller-manager.kubeconfig kube-scheduler.kubeconfig user@<controller 2 public IP>:~/
-
+```
 ### Generating the Data Encryption Config and Key
 -------------------------------------------------
   > Kubernetes allows to encrypts the secrets at rest. Meaning it encrypts the data when its in rest. 
@@ -562,7 +569,7 @@ scp admin.kubeconfig kube-controller-manager.kubeconfig kube-scheduler.kubeconfi
    One important security practice is to ensure that sensitive data is never stored in plain text. Kubernetes offers the ability to encrypt sensitive data when it is stored. However, in order to use this feature it is necessary to provide Kubernetes with a data encrpytion config containing an encryption key. This lesson briefly discusses what the data encrpytion config is and why it is needed. This will provide you with some background knowledge as you proceed to create a data encrpytion config for your cluster. After completing this lesson, you will have a basic understanding of what a data encrpytion config is and what it is used for.
 
  #### Generate the Kubernetes Data encrpytion config file containing the encrpytion key:
-
+```
 ENCRYPTION_KEY=$(head -c 32 /dev/urandom | base64)
 
 cat > encryption-config.yaml << EOF
@@ -583,3 +590,4 @@ Copy the file to both controller servers:
 
 scp encryption-config.yaml user@<controller 1 public ip>:~/
 scp encryption-config.yaml user@<controller 2 public ip>:~/
+```

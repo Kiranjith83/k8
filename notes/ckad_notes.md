@@ -6,13 +6,14 @@ Relevant Documentation
     https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/
 
 Command Reference
+```
     kubectl api-resources -o name
     kubectl get pods -n kube-system
     kubectl get nodes
     kubectl get nodes $node_name
     kubectl get nodes $node_name -o yaml
     kubectl describe node $node_name
-
+```
 ## Creating Pods
 Pods are one of the most essential Kubernetes object types. Most of the orchestration features of Kubernetes are centered around the management of Pods. In this lesson, we will discuss what Pods are and demonstrate how to create a pod. We will also talk about how to edit and delete pods after they are created. The principles discussed in this lesson for managing pods apply to the management of other types of Kubernetes objects as well.
 Relevant Documentation
@@ -21,7 +22,7 @@ https://kubernetes.io/docs/concepts/workloads/pods/pod-overview/
 Lesson Reference
 
 Create a new yaml file to contain the pod definition. Use whatever editor you like, but we used vi:
-
+```
 vi my-pod.yml
 my-pod.yml:
 apiVersion: v1
@@ -35,9 +36,9 @@ spec:
   - name: myapp-container
     image: busybox
     command: ['sh', '-c', 'echo Hello Kubernetes! && sleep 3600']
-
+```
 Create a pod from the yaml definition file:
-
+```
 kubectl create -f my-pod.yml
 
 Edit a pod by updating the yaml definiton and re-applying it:
@@ -51,7 +52,7 @@ kubectl edit pod my-pod
 You can delete a pod like this:
 
 kubectl delete pod my-pod
-
+```
 
 ## Namespaces
 Although namespaces are not on the objectives list for the CKAD exam, they play an important role in many of the tasks that the exam may cover. An understanding of namespaces is necessary in order to avoid confusion in many scenarios that may arise when working with Kubernetes. In this lesson, we will briefly discuss namespaces, how to assign objects to namespaces, and how to browse objects within namespaces.
@@ -62,15 +63,15 @@ Relevant Documentation
 Lesson Reference
 
 You can get a list of the namespaces in the cluster like this:
-
+```
 kubectl get namespaces
-
+```
 You can also create your own namespaces.
-
+```
 kubectl create ns my-ns
-
+```
 To assign an object to a custom namespace, simply specify its metadata.namespace attribute.
-
+```
 apiVersion: v1
 kind: Pod
 metadata:
@@ -83,15 +84,15 @@ spec:
   - name: myapp-container
     image: busybox
     command: ['sh', '-c', 'echo Hello Kubernetes! && sleep 3600']
-
+```
 Use the -n flag to specify a namespace when using commands like kubectl get.
-
+```
 kubectl get pods -n my-ns
-
+```
 You can also use -n to specify a namespace when using kubectl describe.
-
+```
 kubectl describe pod my-ns-pod -n my-ns
-
+```
 ## Basic Container Configuration
 You can specify custom commands for your containers.
 ```

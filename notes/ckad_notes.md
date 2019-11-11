@@ -371,6 +371,55 @@ spec:
   Adapter Pod:
    - All about changing the output from main container. Adaptor containers transform and change the out put so that it can be acceptable for other system. 
    - Example: If there is a log analyzer, you can have adaptor container to transform the output.
+### Ambassador Example:
+1.  Create a ConfigMap containing the configuration for the HAProxy ambassador.
+  ```
+  apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fruit-service-ambassador-config
+data:
+  haproxy.cfg: |-
+    global
+        daemon
+        maxconn 256
+
+    defaults
+        mode http
+        timeout connect 5000ms
+        timeout client 50000ms
+        timeout server 50000ms
+
+    listen http-in
+        bind *:80
+        server server1 127.0.0.1:8775 maxconn 32
+  ```
+  Create the ConfigMap in the cluster from the YAML definition file.
+  ```
+  kubectl apply -f fruit-service-ambassador-config.yml
+  ```
+ 2. Appy to the pod for HAProxy.
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: fruit-service
+spec:
+  containers:
+  - name: nginxonport8775
+    image: mytestpod/podonport8775
+  - name: haproxy-ambassador
+    image: haproxy:1.7
+    ports:
+    - containerPort: 80
+    volumeMounts:
+    - name: config-volume
+      mountPath: /usr/local/etc/haproxy
+  volumes:
+  - name: config-volume
+    configMap:
+      name: fruit-service-ambassador-config
+```
 
 ## Liveness and Readiness Probes
 Kubernetes is often able to detect problems with containers and respond appropriately without the need for specialized configuration. But sometimes we need additional control over how Kubernetes determines container status. Kubernetes probes provide the ability to customize how Kubernetes detects the status of containers, allowing us to build more sophisticated mechanisms for managing container health. In this lesson, we discuss liveness and readiness probes in Kubernetes, and demonstrate how to create and configure them.
